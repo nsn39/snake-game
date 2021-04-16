@@ -58,6 +58,8 @@ class Snake
     private:
         int length;
         Direction current_head_direction;
+        Direction prev_frame_last_block_dir;
+        int prev_frame_last_block_pos_x, prev_frame_last_block_pos_y;
         //array of block objects.
         Block* block_list[MAX_BLOCKS];
 
@@ -70,8 +72,12 @@ class Snake
         int get_snake_length();
         int get_block_x_position(int);
         int get_block_y_position(int);
+        void increment_length();
+        void increment_snake();
         void update_position();
         void update_direction();
+        bool has_eaten(int, int);
+        bool is_out_of_body(int, int);
 };
 
 //Block methods implementation
@@ -178,6 +184,10 @@ int Snake::get_block_y_position(int block_no)
 
 void Snake::update_position()
 {   
+    //Before updating, save the last block's position
+    prev_frame_last_block_pos_x = block_list[length-1]->get_X();
+    prev_frame_last_block_pos_y = block_list[length-1]->get_Y();
+        
     //Loop throught the block_list from first to last and update each block's position
     for(int i=0; i<length; i++) 
     {
@@ -186,7 +196,10 @@ void Snake::update_position()
 }
 
 void Snake::update_direction()
-{
+{   
+    //Before updating, save the last block's direction
+    prev_frame_last_block_dir = block_list[length-1]->get_block_direction();
+
     //For updating directions of each block start from the end block up to the second and replace each
     //block's direction with the block ahead of it and set the first one's equal to the current_head_direction
     for(int i=length-1; i>=1; i--)
@@ -195,4 +208,46 @@ void Snake::update_direction()
         block_list[i]->set_block_direction(prev_direction);
     }
     block_list[0]->set_block_direction(current_head_direction);
+}
+
+void Snake::increment_length() 
+{
+    length++;
+}
+
+void Snake::increment_snake()
+{
+    increment_length();
+    block_list[length-1] = new Block(prev_frame_last_block_pos_x, 
+                                    prev_frame_last_block_pos_y
+                                    ,prev_frame_last_block_dir);
+    
+}
+
+bool Snake::is_out_of_body(int x_val, int y_val)
+{
+    bool ans = true;
+    for(int i=0; i<length; i++) 
+    {   
+        //For each block we're checking if the coordinates for food is different from them.
+        if (x_val == block_list[i]->get_X() && y_val == block_list[i]->get_Y())
+        {
+            ans = false;
+            break;
+        }
+    }
+    return ans;
+}
+
+bool Snake::has_eaten(int x_val, int y_val)
+{   
+    //Checking if the new head position is the same as the food position of the snake.
+    if (block_list[0]->get_X() == x_val && block_list[0]->get_Y() == y_val)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

@@ -27,6 +27,9 @@ SDL_Renderer* gRenderer = NULL;
 //Draw the grid of the board
 void draw_grid(int, int);
 
+//The coordinates for the food of snake
+int food_X, food_Y;
+
 bool init()
 {
     //Initialization flag
@@ -130,6 +133,8 @@ int main(int argc, char* args[])
         //Initializing a new snake of length 6.
         Snake* python = new Snake(16);
 
+        //Select a random location for the food.
+
         //While application is running
         while( !quit )
         {
@@ -141,11 +146,42 @@ int main(int argc, char* args[])
                 {
                     quit = true;
                 }
+                //User presses a movement key
+                else if (e.type == SDL_KEYDOWN)
+                {   
+                    //Select surfaces based on key press
+                    switch( e.key.keysym.sym )
+                    {
+                        case SDLK_UP:
+                        python->move_up();
+                        break;
+
+                        case SDLK_DOWN:
+                        python->move_down();
+                        break;
+
+                        case SDLK_LEFT:
+                        python->move_left();
+                        break;
+
+                        case SDLK_RIGHT:
+                        python->move_right();
+                        break;
+
+                        default:
+                        break;
+                    }
+                }
             }
 
             //Update the snake's position and block direction
             python->update_position();
             python->update_direction();
+
+            //Check if the head and the food location matches.
+            //If matches then 
+            //  i) Increment the snake
+            //  ii) Select a new location for the food.
 
             //Clear screen
             SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -153,6 +189,8 @@ int main(int argc, char* args[])
 
             //Draw the grid
             draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
+
+            //Draw the food
 
             //Draw the snake
             int snake_len = python->get_snake_length();
@@ -173,7 +211,7 @@ int main(int argc, char* args[])
             SDL_RenderPresent( gRenderer );
 
             //Delay for 300 milliseconds.
-            SDL_Delay(100);
+            SDL_Delay(60);
         }
     }
 
