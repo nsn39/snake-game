@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include "snake.cpp"
 #include <cmath>
 
 //Screen dimension constants
@@ -8,6 +9,8 @@ const int SCREEN_HEIGHT = 700;
 //Snake board height and width
 const int BOARD_WIDTH = 40;
 const int BOARD_HEIGHT = 40;
+const int GRID_SPACING = 14;
+const int TRANSLATE_BY = 62;
 
 //Starts up SDL and creates window
 bool init();
@@ -86,9 +89,7 @@ void close()
 void draw_grid(int width, int height) 
 {
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );	
-    const int GRID_SPACING = 13;
-    const int TRANSLATE_BY = 60;
-
+    
     //Draw all the horizontal lines
     for(int i=0; i<width+1; i++)
     {
@@ -111,7 +112,8 @@ void draw_grid(int width, int height)
 }
 
 int main(int argc, char* args[]) 
-{
+{   
+
     //Start up SDL and create window
 	if( !init() )
 	{
@@ -124,6 +126,9 @@ int main(int argc, char* args[])
 
         //Event handler
         SDL_Event e;
+
+        //Initializing a new snake of length 6.
+        Snake* python = new Snake(16);
 
         //While application is running
         while( !quit )
@@ -138,18 +143,37 @@ int main(int argc, char* args[])
                 }
             }
 
+            //Update the snake's position and block direction
+            python->update_position();
+            python->update_direction();
+
             //Clear screen
             SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
             SDL_RenderClear( gRenderer );
 
             //Draw the grid
             draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
+
             //Draw the snake
+            int snake_len = python->get_snake_length();
+            SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );
+
+            for(int i=0; i<snake_len; i++)
+            {
+                int block_starting_X = python->get_block_x_position(i) * GRID_SPACING + TRANSLATE_BY;
+                int block_starting_Y = python->get_block_y_position(i) * GRID_SPACING + TRANSLATE_BY;
+
+                SDL_Rect fillRect = { block_starting_X, block_starting_Y, GRID_SPACING, GRID_SPACING };
+                SDL_RenderFillRect( gRenderer, &fillRect );
+            }
 
             //Draw the food.
             
             //Update screen
             SDL_RenderPresent( gRenderer );
+
+            //Delay for 300 milliseconds.
+            SDL_Delay(100);
         }
     }
 
