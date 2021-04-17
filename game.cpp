@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include "snake.cpp"
 #include <cmath>
+#include <time.h>
+#include <stdlib.h>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 700;
@@ -30,10 +32,16 @@ void draw_grid(int, int);
 //The coordinates for the food of snake
 int food_X, food_Y;
 
+//Selecting a random new location for our food
+void new_food_location(Snake*);
+
 bool init()
 {
     //Initialization flag
 	bool success = true;
+
+    //Initialize random seed
+    srand(time(NULL));
 
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -114,6 +122,21 @@ void draw_grid(int width, int height)
     }
 }
 
+void new_food_location(Snake* python)
+{
+    while(true)
+    {
+        food_X = rand() % BOARD_WIDTH;
+        food_Y = rand() % BOARD_HEIGHT;
+
+        if (python->is_out_of_body(food_X, food_Y))
+        {   
+            //If the position is out of the snake's body you've got your location.
+            break;
+        }
+    }
+}
+
 int main(int argc, char* args[]) 
 {   
 
@@ -131,9 +154,10 @@ int main(int argc, char* args[])
         SDL_Event e;
 
         //Initializing a new snake of length 6.
-        Snake* python = new Snake(16);
+        Snake* python = new Snake(6);
 
         //Select a random location for the food.
+        new_food_location(python);
 
         //While application is running
         while( !quit )
@@ -182,6 +206,11 @@ int main(int argc, char* args[])
             //If matches then 
             //  i) Increment the snake
             //  ii) Select a new location for the food.
+            if (python->has_eaten(food_X, food_Y))
+            {
+                python->increment_snake();
+                new_food_location(python);
+            }
 
             //Clear screen
             SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -191,6 +220,11 @@ int main(int argc, char* args[])
             draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
 
             //Draw the food
+            int food_position_X = food_X * GRID_SPACING + TRANSLATE_BY;
+            int food_position_Y = food_Y * GRID_SPACING + TRANSLATE_BY;
+            SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );
+            SDL_Rect foodRect = {food_position_X, food_position_Y, GRID_SPACING, GRID_SPACING};
+            SDL_RenderFillRect( gRenderer, &foodRect );
 
             //Draw the snake
             int snake_len = python->get_snake_length();
