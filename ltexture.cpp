@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include <iostream>
 
 //Texture wrapper class
 class LTexture
@@ -70,12 +71,13 @@ LTexture::~LTexture()
 }
 
 bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColor )
-{
+{	
 	//Get rid of preexisting texture
 	free();
 
 	//Render text surface
 	SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor );
+
 	if( textSurface == NULL )
 	{
 		printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
@@ -104,10 +106,12 @@ bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColo
 }
 
 void LTexture::free()
-{
+{	
+
 	//Free texture if it exists
 	if( mTexture != NULL )
-	{
+	{	
+		//std::cout << mTexture << std::endl;
 		SDL_DestroyTexture( mTexture );
 		mTexture = NULL;
 		mWidth = 0;

@@ -105,16 +105,17 @@ bool loadMedia()
 {
     //Loading success flag
 	bool success = true;
-
+    
 	//Open the font
-	gFont = TTF_OpenFont( "static/Antonio-Medium.ttf", 18 );
+	gFont = TTF_OpenFont( "Antonio-Medium.ttf", 18 );
 	if( gFont == NULL )
 	{
 		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
 		success = false;
 	}
 	else
-	{
+	{       
+        gTextTexture = new LTexture(gRenderer, gFont);
 		//Render text
 		SDL_Color textColor = { 0, 0, 0 };
 		if( !gTextTexture->loadFromRenderedText( "Score: 0", textColor ) )
@@ -122,8 +123,9 @@ bool loadMedia()
 			printf( "Failed to render text texture!\n" );
 			success = false;
 		}
+        
 	}
-
+    
 	return success;
 }
 
@@ -195,115 +197,120 @@ int main(int argc, char* args[])
 	{
 		printf( "Failed to initialize!\n" );
 	}
-    else
+    else 
     {
-        //Main loop flag
-        bool quit = false;
-
-        //Event handler
-        SDL_Event e;
-
-        //Initializing a new snake of length 6.
-        Snake* python = new Snake(6);
-
-        //Initializing a new text texture loader
-        gTextTexture = new LTexture(gRenderer, gFont);
-
-        //Select a random location for the food.
-        new_food_location(python);
-
-        //While application is running
-        while( !quit )
+        //Load media
+		if( !loadMedia() )
+		{
+			printf( "Failed to load media!\n" );
+		}
+        else
         {
-            //Handle events on queue
-            while( SDL_PollEvent( &e ) != 0 )
+            //Main loop flag
+            bool quit = false;
+
+            //Event handler
+            SDL_Event e;
+
+            //Initializing a new snake of length 6.
+            Snake* python = new Snake(6);
+
+            //Select a random location for the food.
+            new_food_location(python);
+
+            //While application is running
+            while( !quit )
             {
-                //User requests quit
-                if( e.type == SDL_QUIT )
+                //Handle events on queue
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        quit = true;
+                    }
+                    //User presses a movement key
+                    else if (e.type == SDL_KEYDOWN)
+                    {   
+                        //Select surfaces based on key press
+                        switch( e.key.keysym.sym )
+                        {
+                            case SDLK_UP:
+                            python->move_up();
+                            break;
+
+                            case SDLK_DOWN:
+                            python->move_down();
+                            break;
+
+                            case SDLK_LEFT:
+                            python->move_left();
+                            break;
+
+                            case SDLK_RIGHT:
+                            python->move_right();
+                            break;
+
+                            default:
+                            break;
+                        }
+                    }
+                }
+
+                //Update the snake's position and block direction
+                python->update_position();
+                python->update_direction();
+
+                //Check first if the snake has bitten itself
+                //If so, then quit the game
+                if (python->has_collided())
                 {
                     quit = true;
                 }
-                //User presses a movement key
-                else if (e.type == SDL_KEYDOWN)
-                {   
-                    //Select surfaces based on key press
-                    switch( e.key.keysym.sym )
-                    {
-                        case SDLK_UP:
-                        python->move_up();
-                        break;
 
-                        case SDLK_DOWN:
-                        python->move_down();
-                        break;
-
-                        case SDLK_LEFT:
-                        python->move_left();
-                        break;
-
-                        case SDLK_RIGHT:
-                        python->move_right();
-                        break;
-
-                        default:
-                        break;
-                    }
+                //Check if the head and the food location matches.
+                //If matches then 
+                //  i) Increment the snake
+                //  ii) Select a new location for the food.
+                if (python->has_eaten(food_X, food_Y))
+                {
+                    python->increment_snake();
+                    new_food_location(python);
                 }
+
+                //Clear screen
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+
+                //Draw the grid
+                draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
+
+                //Draw the food
+                int food_position_X = food_X * GRID_SPACING + TRANSLATE_BY;
+                int food_position_Y = food_Y * GRID_SPACING + TRANSLATE_BY;
+                SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );
+                SDL_Rect foodRect = {food_position_X, food_position_Y, GRID_SPACING, GRID_SPACING};
+                SDL_RenderFillRect( gRenderer, &foodRect );
+
+                //Draw the snake
+                int snake_len = python->get_snake_length();
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );
+
+                for(int i=0; i<snake_len; i++)
+                {
+                    int block_starting_X = python->get_block_x_position(i) * GRID_SPACING + TRANSLATE_BY;
+                    int block_starting_Y = python->get_block_y_position(i) * GRID_SPACING + TRANSLATE_BY;
+
+                    SDL_Rect fillRect = { block_starting_X, block_starting_Y, GRID_SPACING, GRID_SPACING };
+                    SDL_RenderFillRect( gRenderer, &fillRect );
+                }
+                
+                //Update screen
+                SDL_RenderPresent( gRenderer );
+
+                //Delay for 300 milliseconds.
+                SDL_Delay(60);
             }
-
-            //Update the snake's position and block direction
-            python->update_position();
-            python->update_direction();
-
-            //Check first if the snake has bitten itself
-            //If so, then quit the game
-            if (python->has_collided())
-            {
-                quit = true;
-            }
-
-            //Check if the head and the food location matches.
-            //If matches then 
-            //  i) Increment the snake
-            //  ii) Select a new location for the food.
-            if (python->has_eaten(food_X, food_Y))
-            {
-                python->increment_snake();
-                new_food_location(python);
-            }
-
-            //Clear screen
-            SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-            SDL_RenderClear( gRenderer );
-
-            //Draw the grid
-            draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
-
-            //Draw the food
-            int food_position_X = food_X * GRID_SPACING + TRANSLATE_BY;
-            int food_position_Y = food_Y * GRID_SPACING + TRANSLATE_BY;
-            SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );
-            SDL_Rect foodRect = {food_position_X, food_position_Y, GRID_SPACING, GRID_SPACING};
-            SDL_RenderFillRect( gRenderer, &foodRect );
-
-            //Draw the snake
-            int snake_len = python->get_snake_length();
-            SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );
-
-            for(int i=0; i<snake_len; i++)
-            {
-                int block_starting_X = python->get_block_x_position(i) * GRID_SPACING + TRANSLATE_BY;
-                int block_starting_Y = python->get_block_y_position(i) * GRID_SPACING + TRANSLATE_BY;
-
-                SDL_Rect fillRect = { block_starting_X, block_starting_Y, GRID_SPACING, GRID_SPACING };
-                SDL_RenderFillRect( gRenderer, &fillRect );
-            }
-            
-            //Update screen
-            SDL_RenderPresent( gRenderer );
-
-            //Delay for 300 milliseconds.
-            SDL_Delay(60);
         }
     }
 
