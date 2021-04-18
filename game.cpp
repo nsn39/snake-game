@@ -15,6 +15,10 @@ const int BOARD_HEIGHT = 40;
 const int GRID_SPACING = 14;
 const int TRANSLATE_BY = 62;
 
+//Tracking the score of our player
+//+10 for every food eaten.
+int SCORE = 0;
+
 //Starts up SDL and creates window
 bool init();
 
@@ -274,6 +278,7 @@ int main(int argc, char* args[])
                 //  ii) Select a new location for the food.
                 if (python->has_eaten(food_X, food_Y))
                 {
+                    SCORE += 10;
                     python->increment_snake();
                     new_food_location(python);
                 }
@@ -281,6 +286,12 @@ int main(int argc, char* args[])
                 //Clear screen
                 SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
                 SDL_RenderClear( gRenderer );
+
+                //Draw the scoreboard.
+                std::string scoreboard_text = "Score : " + std::to_string(SCORE);
+                SDL_Color textColor = { 0, 0, 0 };
+                bool uselessVariable = gTextTexture->loadFromRenderedText( scoreboard_text, textColor );
+                gTextTexture->render( ( SCREEN_WIDTH - gTextTexture->getWidth() ) / 2, 25 );
 
                 //Draw the grid
                 draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
