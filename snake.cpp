@@ -77,6 +77,7 @@ class Snake
         void update_position();
         void update_direction();
         bool has_eaten(int, int);
+        bool has_collided();
         bool is_out_of_body(int, int);
 };
 
@@ -233,6 +234,27 @@ bool Snake::is_out_of_body(int x_val, int y_val)
         if (x_val == block_list[i]->get_X() && y_val == block_list[i]->get_Y())
         {
             ans = false;
+            break;
+        }
+    }
+    return ans;
+}
+
+//Checking if the head of the snake has collided with any of its rem body block
+//If so, then game over
+bool Snake::has_collided()
+{
+    bool ans = false;
+    int head_X = get_block_x_position(0);
+    int head_Y = get_block_y_position(0);
+    for(int i=1; i<length; i++)
+    {
+        int block_X = get_block_x_position(i);
+        int block_Y = get_block_y_position(i);
+
+        if (head_X == block_X && head_Y == block_Y)
+        {
+            ans = true;
             break;
         }
     }

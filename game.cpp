@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include "snake.cpp"
+#include "ltexture.cpp"
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
@@ -17,6 +18,9 @@ const int TRANSLATE_BY = 62;
 //Starts up SDL and creates window
 bool init();
 
+//Loads up the font file
+bool loadMedia();
+
 //Frees the resources and closes SDL
 void close();
 
@@ -25,6 +29,12 @@ SDL_Window* gWindow = NULL;
 
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
+
+//Globally used font
+TTF_Font *gFont = NULL;
+
+//Load texture object
+LTexture* gTextTexture = NULL;
 
 //Draw the grid of the board
 void draw_grid(int, int);
@@ -66,8 +76,8 @@ bool init()
 		}
 		else
 		{
-			//Create renderer for window
-			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
+			//Create vsynced renderer for window
+			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
 			if( gRenderer == NULL )
 			{
 				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -78,7 +88,39 @@ bool init()
 				//Initialize renderer color
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 
+                //Initialize SDL_ttf
+				if( TTF_Init() == -1 )
+				{
+					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+					success = false;
+				}
 			}
+		}
+	}
+
+	return success;
+}
+
+bool loadMedia()
+{
+    //Loading success flag
+	bool success = true;
+
+	//Open the font
+	gFont = TTF_OpenFont( "static/Antonio-Medium.ttf", 18 );
+	if( gFont == NULL )
+	{
+		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+		success = false;
+	}
+	else
+	{
+		//Render text
+		SDL_Color textColor = { 0, 0, 0 };
+		if( !gTextTexture->loadFromRenderedText( "Score: 0", textColor ) )
+		{
+			printf( "Failed to render text texture!\n" );
+			success = false;
 		}
 	}
 
@@ -87,6 +129,13 @@ bool init()
 
 void close()
 {
+    //Free loaded images
+	gTextTexture->free();
+
+	//Free global font
+	TTF_CloseFont( gFont );
+	gFont = NULL;
+
     //Destroy window	
 	SDL_DestroyRenderer( gRenderer );
 	SDL_DestroyWindow( gWindow );
@@ -94,6 +143,7 @@ void close()
 	gRenderer = NULL;
 
 	//Quit SDL
+    TTF_Quit();
 	SDL_Quit();
 }
 
@@ -156,6 +206,9 @@ int main(int argc, char* args[])
         //Initializing a new snake of length 6.
         Snake* python = new Snake(6);
 
+        //Initializing a new text texture loader
+        gTextTexture = new LTexture(gRenderer, gFont);
+
         //Select a random location for the food.
         new_food_location(python);
 
@@ -202,6 +255,13 @@ int main(int argc, char* args[])
             python->update_position();
             python->update_direction();
 
+            //Check first if the snake has bitten itself
+            //If so, then quit the game
+            if (python->has_collided())
+            {
+                quit = true;
+            }
+
             //Check if the head and the food location matches.
             //If matches then 
             //  i) Increment the snake
@@ -238,8 +298,6 @@ int main(int argc, char* args[])
                 SDL_Rect fillRect = { block_starting_X, block_starting_Y, GRID_SPACING, GRID_SPACING };
                 SDL_RenderFillRect( gRenderer, &fillRect );
             }
-
-            //Draw the food.
             
             //Update screen
             SDL_RenderPresent( gRenderer );
