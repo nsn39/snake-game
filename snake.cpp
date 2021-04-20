@@ -240,6 +240,7 @@ void Snake::increment_snake()
     
 }
 
+//Checking if a square lies outside the body of the snake
 bool Snake::is_out_of_body(int x_val, int y_val)
 {
     bool ans = true;

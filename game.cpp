@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include "snake.cpp"
 #include "ltexture.cpp"
+#include "solver/bfs_solver.cpp"
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
@@ -48,6 +49,13 @@ int food_X, food_Y;
 
 //Selecting a random new location for our food
 void new_food_location(Snake*);
+
+//Solver objects
+BFS_Solver* solver1 = NULL;
+
+//The path-string and index for the snake given by the solver.
+std::string snake_path;
+int snake_path_index = 0;
 
 bool init()
 {
@@ -180,6 +188,9 @@ void new_food_location(Snake* python)
 int main(int argc, char* args[]) 
 {   
 
+    //Save the second argument as a string
+    std::string game_mode = args[1];
+
     //Start up SDL and create window
 	if( !init() )
 	{
@@ -206,6 +217,11 @@ int main(int argc, char* args[])
             //Select a random location for the food.
             new_food_location(python);
 
+            //First initialize a solver and assign the path string variables.
+            solver1 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+            snake_path = solver1->path_to_food();
+            snake_path_index = 0;
+
             //While application is running
             while( !quit )
             {
@@ -218,7 +234,7 @@ int main(int argc, char* args[])
                         quit = true;
                     }
                     //User presses a movement key
-                    else if (e.type == SDL_KEYDOWN)
+                    else if (e.type == SDL_KEYDOWN && game_mode == "human")
                     {   
                         //Select surfaces based on key press
                         switch( e.key.keysym.sym )
@@ -245,6 +261,28 @@ int main(int argc, char* args[])
                     }
                 }
 
+                //If the game_mode is not human then move snake according to path_string
+                if (game_mode != "human")
+                {
+                    if (snake_path[snake_path_index] == 'L')
+                    {
+                        python->move_left();
+                    }
+                    else if (snake_path[snake_path_index] == 'R')
+                    {
+                        python->move_right();
+                    }
+                    else if (snake_path[snake_path_index] == 'U')
+                    {
+                        python->move_up();
+                    }
+                    else if (snake_path[snake_path_index] == 'D')
+                    {
+                        python->move_down();
+                    }
+                    snake_path_index++;
+                }
+
                 //Update the snake's position and block direction
                 python->update_position();
                 python->update_direction();
@@ -265,6 +303,12 @@ int main(int argc, char* args[])
                     SCORE += 10;
                     python->increment_snake();
                     new_food_location(python);
+
+                    //Request a new pathstring from the solver
+                    //Also set path_string_index to 0.
+                    solver1 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                    snake_path = solver1->path_to_food();
+                    snake_path_index = 0;
                 }
 
                 //Clear screen
@@ -277,7 +321,7 @@ int main(int argc, char* args[])
                 bool uselessVariable = gTextTexture->loadFromRenderedText( scoreboard_text, textColor );
                 gTextTexture->render( ( SCREEN_WIDTH - gTextTexture->getWidth() ) / 2, 25 );
 
-                //Draw the grid
+                //Draw the game board.
                 draw_board(BOARD_WIDTH, BOARD_HEIGHT);
 
                 //Draw the food
@@ -304,7 +348,7 @@ int main(int argc, char* args[])
                 SDL_RenderPresent( gRenderer );
 
                 //Delay for 300 milliseconds.
-                SDL_Delay(60);
+                SDL_Delay(35);
             }
         }
     }
