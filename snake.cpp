@@ -149,23 +149,38 @@ Snake::Snake(int init_length)
 }
 
 void Snake::move_left()
-{
-    current_head_direction = LEFT;
+{   
+    if (current_head_direction != RIGHT)
+    {
+        current_head_direction = LEFT;
+    }
+    
 }
 
 void Snake::move_right()
 {
-    current_head_direction = RIGHT;
+    if (current_head_direction != LEFT)
+    {
+        current_head_direction = RIGHT;
+    }
+    
 }
 
 void Snake::move_down()
 {
-    current_head_direction = DOWN;
+    if (current_head_direction != UP)
+    {
+        current_head_direction = DOWN;
+    }
+    
 }
 
 void Snake::move_up()
 {
-    current_head_direction = UP;
+    if (current_head_direction != DOWN)
+    {
+        current_head_direction = UP;
+    }
 }
 
 int Snake::get_snake_length()

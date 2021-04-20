@@ -111,7 +111,7 @@ bool loadMedia()
 	bool success = true;
     
 	//Open the font
-	gFont = TTF_OpenFont( "Antonio-Medium.ttf", 18 );
+	gFont = TTF_OpenFont( "static/Antonio-Medium.ttf", 18 );
 	if( gFont == NULL )
 	{
 		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
@@ -153,29 +153,13 @@ void close()
 	SDL_Quit();
 }
 
-void draw_grid(int width, int height) 
+void draw_board(int width, int height) 
 {
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );	
     
-    //Draw all the horizontal lines
-    for(int i=0; i<width+1; i++)
-    {
-        int start_X = 0 + TRANSLATE_BY;
-        int start_Y = (i * GRID_SPACING) + TRANSLATE_BY;
-        int end_X = (GRID_SPACING * width) + TRANSLATE_BY;
-        int end_Y = (i * GRID_SPACING) + TRANSLATE_BY;
-        SDL_RenderDrawLine( gRenderer, start_X, start_Y, end_X, end_Y);
-    }
-
-    //Draw all the vertical lines
-    for(int i=0; i<height+1; i++)
-    {
-        int start_X =  (i * GRID_SPACING) + TRANSLATE_BY;
-        int start_Y = 0 + TRANSLATE_BY;
-        int end_X = (i * GRID_SPACING) + TRANSLATE_BY;
-        int end_Y = (GRID_SPACING * height) + TRANSLATE_BY;
-        SDL_RenderDrawLine( gRenderer, start_X, start_Y, end_X, end_Y);
-    }
+    //Drawing our main board rect
+    SDL_Rect boardRect = {TRANSLATE_BY, TRANSLATE_BY, GRID_SPACING*width, GRID_SPACING*height};
+    SDL_RenderFillRect( gRenderer, &boardRect );
 }
 
 void new_food_location(Snake* python)
@@ -294,19 +278,19 @@ int main(int argc, char* args[])
                 gTextTexture->render( ( SCREEN_WIDTH - gTextTexture->getWidth() ) / 2, 25 );
 
                 //Draw the grid
-                draw_grid(BOARD_WIDTH, BOARD_HEIGHT);
+                draw_board(BOARD_WIDTH, BOARD_HEIGHT);
 
                 //Draw the food
                 int food_position_X = food_X * GRID_SPACING + TRANSLATE_BY;
                 int food_position_Y = food_Y * GRID_SPACING + TRANSLATE_BY;
-                SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );
                 SDL_Rect foodRect = {food_position_X, food_position_Y, GRID_SPACING, GRID_SPACING};
                 SDL_RenderFillRect( gRenderer, &foodRect );
 
                 //Draw the snake
                 int snake_len = python->get_snake_length();
-                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );
-
+                
+                SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );
                 for(int i=0; i<snake_len; i++)
                 {
                     int block_starting_X = python->get_block_x_position(i) * GRID_SPACING + TRANSLATE_BY;
