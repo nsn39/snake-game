@@ -1,11 +1,11 @@
-#include "../snake.cpp"
-#include <queue>
+#include "bfs_solver.cpp"
+#include <stack>
 #include <string>
 #include <utility>
 #include <iostream>
 
-//Abstraction for a BFS Snake Solver
-class BFS_Solver
+//Abstraction for a DFS Snake Solver
+class DFS_Solver
 {
     private:
         int food_X, food_Y, b_size;
@@ -13,13 +13,13 @@ class BFS_Solver
         int p_length;
         Snake* game_snake;
     public:
-        BFS_Solver(int, int, int, Snake*);
+        DFS_Solver(int, int, int, Snake*);
         std::string path_to_food();
         int path_length();
 };
 
 //Constructor
-BFS_Solver::BFS_Solver(int board_size, int x_val, int y_val, Snake* snake_obj)
+DFS_Solver::DFS_Solver(int board_size, int x_val, int y_val, Snake* snake_obj)
 {
     b_size = board_size;
     food_X = x_val;
@@ -28,11 +28,14 @@ BFS_Solver::BFS_Solver(int board_size, int x_val, int y_val, Snake* snake_obj)
 }
 
 //Methods
-std::string BFS_Solver::path_to_food()
+std::string DFS_Solver::path_to_food()
 {
     int head_X = game_snake->get_block_x_position(0);
     int head_Y = game_snake->get_block_y_position(0);
     
+    //Print the details
+    std::cout << "head x " << head_X << " head y " << head_Y << std::endl;
+    std::cout << "food x " << food_X << " food y " << food_Y << std::endl; 
     //Tracking the visited squares
     int visited[b_size][b_size] = {};
 
@@ -40,13 +43,13 @@ std::string BFS_Solver::path_to_food()
     std::string path_strings[b_size][b_size];
     path_strings[head_X][head_Y] = "";
 
-    std::queue<std::pair<int, int>> squares_to_traverse;
+    std::stack<std::pair<int, int>> squares_to_traverse;
     squares_to_traverse.push(std::make_pair(head_X, head_Y));
     visited[head_X][head_Y] = 1;
 
     while(!squares_to_traverse.empty())
     {
-        std::pair<int, int> point = squares_to_traverse.front();
+        std::pair<int, int> point = squares_to_traverse.top();
         squares_to_traverse.pop();
 
         int x_pos = point.first;
@@ -66,6 +69,7 @@ std::string BFS_Solver::path_to_food()
         if (!visited[x_pos][y_temp] && game_snake->is_out_of_body(x_pos, y_temp))
         {
             visited[x_pos][y_temp] = 1;
+            //std::cout << "pushing " << x_pos << " and " << y_temp << std::endl;
             squares_to_traverse.push(std::make_pair(x_pos, y_temp));
             path_strings[x_pos][y_temp] = path_strings[x_pos][y_pos] + "U";
         }
@@ -75,6 +79,7 @@ std::string BFS_Solver::path_to_food()
         if (!visited[x_pos][y_temp] && game_snake->is_out_of_body(x_pos, y_temp))
         {
             visited[x_pos][y_temp] = 1;
+            //std::cout << "pushing " << x_pos << " and " << y_temp << std::endl;
             squares_to_traverse.push(std::make_pair(x_pos, y_temp));
             path_strings[x_pos][y_temp] = path_strings[x_pos][y_pos] + "D";
         }
@@ -84,6 +89,7 @@ std::string BFS_Solver::path_to_food()
         if (!visited[x_temp][y_pos] && game_snake->is_out_of_body(x_temp, y_pos))
         {
             visited[x_temp][y_pos] = 1;
+            //std::cout << "pushing " << x_temp << " and " << y_pos << std::endl;
             squares_to_traverse.push(std::make_pair(x_temp, y_pos));
             path_strings[x_temp][y_pos] = path_strings[x_pos][y_pos] + "L";
         }
@@ -93,6 +99,7 @@ std::string BFS_Solver::path_to_food()
         if (!visited[x_temp][y_pos] && game_snake->is_out_of_body(x_temp, y_pos))
         {
             visited[x_temp][y_pos] = 1;
+            //std::cout << "pushing " << x_temp << " and " << y_pos << std::endl;
             squares_to_traverse.push(std::make_pair(x_temp, y_pos));
             path_strings[x_temp][y_pos] = path_strings[x_pos][y_pos] + "R";
         }
@@ -103,7 +110,7 @@ std::string BFS_Solver::path_to_food()
     return path_strings[food_X][food_Y];
 }
 
-int BFS_Solver::path_length()
+int DFS_Solver::path_length()
 {
     return p_length;
 }

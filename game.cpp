@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 //#include "snake.cpp"
 #include "ltexture.cpp"
-#include "solver/bfs_solver.cpp"
+#include "solver/dfs_solver.cpp"
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
@@ -53,7 +53,8 @@ int food_X, food_Y;
 void new_food_location(Snake*);
 
 //Solver objects
-BFS_Solver* solver1 = NULL;
+DFS_Solver* solver1 = NULL;
+BFS_Solver* solver2 = NULL;
 
 //The path-string and index for the snake given by the solver.
 std::string snake_path;
@@ -222,15 +223,24 @@ int main(int argc, char* args[])
 
             //First initialize a solver and assign the path string variables.
             if (game_mode != "human")
-            {
-                solver1 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
-                snake_path = solver1->path_to_food();
+            {   
+                if (game_mode == "dfs")
+                {
+                    solver1 = new DFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                    snake_path = solver1->path_to_food();
+                    snake_path_length = solver1->path_length();
+                }
+                else if (game_mode == "bfs")
+                {
+                    solver2 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                    snake_path = solver2->path_to_food();
+                    snake_path_length = solver2->path_length();
+                }
+                
+                
                 snake_path_index = 0;
-                snake_path_length = solver1->path_length();
-                std::cout << snake_path << std::endl;
-                std::cout << snake_path_index << std::endl;
-                std::cout << snake_path_length << std::endl;
-
+                
+        
                 //Setting the direction of snake's head
                 if (snake_path[0] == 'L')
                 {
@@ -340,13 +350,18 @@ int main(int argc, char* args[])
 
                     //Request a new pathstring from the solver
                     //Also set path_string_index to 0.
-                    if (game_mode != "human")
+                    if (game_mode == "dfs")
                     {
-                        solver1 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                        solver1 = new DFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
                         snake_path = solver1->path_to_food();
-                        snake_path_index = 0;
+                    }
+                    else if (game_mode == "bfs")
+                    {
+                        solver2 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                        snake_path = solver2->path_to_food();
                     }
                     
+                    snake_path_index = 0;
                 }
 
                 //Clear screen
