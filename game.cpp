@@ -228,6 +228,26 @@ int main(int argc, char* args[])
                 snake_path_index = 0;
                 snake_path_length = solver1->path_length();
                 std::cout << snake_path << std::endl;
+                std::cout << snake_path_index << std::endl;
+                std::cout << snake_path_length << std::endl;
+
+                //Setting the direction of snake's head
+                if (snake_path[0] == 'L')
+                {
+                    python->move_left();
+                }
+                else if (snake_path[0] == 'R')
+                {
+                    python->move_right();
+                }
+                else if (snake_path[0] == 'U')
+                {
+                    python->move_up();
+                }
+                else if (snake_path[0] == 'D')
+                {
+                    python->move_down();
+                }
             }
             
 
@@ -274,37 +294,32 @@ int main(int argc, char* args[])
                 //std::cout << snake_path_index << snake_path[snake_path_index] << std::endl;
                 if (game_mode != "human")
                 {
+                    
                     if (snake_path[snake_path_index] == 'L')
                     {
                         python->move_left();
-                        //std::cout << 'L';
+                        snake_path_index++;
                     }
                     else if (snake_path[snake_path_index] == 'R')
                     {
                         python->move_right();
-                        //std::cout << 'R';
+                        snake_path_index++;
                     }
                     else if (snake_path[snake_path_index] == 'U')
                     {
                         python->move_up();
-                        //std::cout << 'U';
+                        snake_path_index++;
                     }
                     else if (snake_path[snake_path_index] == 'D')
                     {
                         python->move_down();
-                        //std::cout << 'D';
+                        snake_path_index++;
                     }
-                    //std::cout << snake_path_index << "/" << snake_path_length << std::endl;
-                    snake_path_index++;
                 }
 
                 //Update the snake's position and block direction
                 python->update_position();
                 python->update_direction();
-
-                //Now print out the head and food coordinates
-                std::cout << "headX" << python->get_block_x_position(0) << " headY " << python->get_block_y_position(0) << std::endl;
-                //std::cout << "foodX" << food_X << " foodY " << food_Y << std::endl;
 
                 //Check first if the snake has bitten itself
                 //If so, then quit the game
@@ -330,7 +345,6 @@ int main(int argc, char* args[])
                         solver1 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
                         snake_path = solver1->path_to_food();
                         snake_path_index = 0;
-                        std::cout << "new path " << snake_path << std::endl;
                     }
                     
                 }
