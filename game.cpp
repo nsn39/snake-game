@@ -344,7 +344,7 @@ int main(int argc, char* args[])
                 //  ii) Select a new location for the food.
                 if (python->has_eaten(food_X, food_Y))
                 {
-                    SCORE += 10;
+                    SCORE += 1;
                     python->increment_snake();
                     new_food_location(python);
 
