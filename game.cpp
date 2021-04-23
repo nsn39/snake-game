@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
-//#include "snake.cpp"
 #include "ltexture.cpp"
-#include "solver/dfs_solver.cpp"
+#include "solver/longest_path_solver.cpp"
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
@@ -55,6 +54,7 @@ void new_food_location(Snake*);
 //Solver objects
 DFS_Solver* solver1 = NULL;
 BFS_Solver* solver2 = NULL;
+Longest_Solver* solver3 = NULL;
 
 //The path-string and index for the snake given by the solver.
 std::string snake_path;
@@ -236,7 +236,12 @@ int main(int argc, char* args[])
                     snake_path = solver2->path_to_food();
                     snake_path_length = solver2->path_length();
                 }
-                
+                else if (game_mode == "longest")
+                {
+                    solver3 = new Longest_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                    snake_path = solver3->path_to_food();
+                    snake_path_length = solver3->path_length();
+                }
                 
                 snake_path_index = 0;
                 
@@ -360,7 +365,12 @@ int main(int argc, char* args[])
                         solver2 = new BFS_Solver(BOARD_WIDTH, food_X, food_Y, python);
                         snake_path = solver2->path_to_food();
                     }
-                    
+                    else if (game_mode == "longest")
+                    {
+                        solver3 = new Longest_Solver(BOARD_WIDTH, food_X, food_Y, python);
+                        snake_path = solver3->path_to_food();
+                    }
+
                     snake_path_index = 0;
                 }
 

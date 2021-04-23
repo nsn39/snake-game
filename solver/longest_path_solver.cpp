@@ -10,10 +10,12 @@ class Longest_Solver
         int food_X, food_Y, b_size;
         std::string shortest_path;
         std::string longest_path;
+        BFS_Solver* solver;
         Snake* s_obj;
     public:
         Longest_Solver(int, int, int, Snake*);
-        std::string get_longest_path();
+        std::string path_to_food();
+        int path_length();
 };
 
 
@@ -25,17 +27,17 @@ Longest_Solver::Longest_Solver(int board_size, int x_val, int y_val, Snake* s_ob
     b_size = board_size;
 
     //First, initialize and BFS_Solver and get the shortest path directions.
-    BFS_Solver* solver = new BFS_Solver(board_size, x_val, y_val, s_object);
+    solver = new BFS_Solver(board_size, x_val, y_val, s_object);
     shortest_path = solver->path_to_food();
     s_obj = s_object;
 }
 
-std::string get_longest_path()
+std::string Longest_Solver::path_to_food()
 {   
     int prev_len = solver->path_length();
 
     //Then set up a 2D Array for tracking visited squares.
-    int visited[board_size][board_size] = {};
+    int visited[b_size][b_size] = {};
 
     //Vector of list of pair of x and y coordinates for the shortest path.
     std::vector<std::pair<int, int>> s_path_coords;
@@ -46,15 +48,19 @@ std::string get_longest_path()
     //Fill in the s_path_coords vector
     int head_X = s_obj->get_block_x_position(0);
     int head_Y = s_obj->get_block_y_position(0);
+
+    //Create an std::pair of snake's head block and push to s_path_coords
     std::pair<int, int> temp_pair = std::make_pair(head_X, head_Y);
     s_path_coords.push_back(temp_pair);
+
+    //variables for traversing the grid.
     int temp_x_val = head_X, temp_y_val = head_Y;
 
     for(int i=1; i<=prev_len; i++)
     {   
         if(shortest_path[i-1] == 'R')
         {
-            temp_x_val = (temp_x_val + 1)%b_size;
+            temp_x_val = (temp_x_val + 1) % b_size;
         }
         else if(shortest_path[i-1] == 'L')
         {
@@ -62,18 +68,18 @@ std::string get_longest_path()
         }
         else if (shortest_path[i-1] == 'D')
         {
-            temp_y_val (temp_y_val + 1) % b_size;
+            temp_y_val = (temp_y_val + 1) % b_size;
         }
         else if(shortest_path[i-1] == 'U')
         {
             temp_y_val = (temp_y_val - 1) > -1 ? temp_y_val - 1 : b_size - 1;
         }
-        l_path_directions.push_back(std::make_pair(temp_x_val, temp_y_val));
+        s_path_coords.push_back(std::make_pair(temp_x_val, temp_y_val));
         visited[temp_x_val][temp_y_val] = 1;
     }
 
     //Iterate through the snake's body and set all block coordinates as visited.
-    for(int i=0; i<s_obj->length(); i++)
+    for(int i=0; i<s_obj->get_snake_length(); i++)
     {
         int block_x_coords = s_obj->get_block_x_position(i);
         int block_y_coords = s_obj->get_block_y_position(i);
@@ -81,7 +87,7 @@ std::string get_longest_path()
     }
 
     //Iterate throught the shortest path string and keep on increasing the path
-    for(int i=0; i<prev_length; i++)
+    for(int i=0; i<prev_len; i++)
     {
         int first_block_X = s_path_coords[i].first;
         int first_block_Y = s_path_coords[i].second;
@@ -116,11 +122,12 @@ std::string get_longest_path()
 
             temp_fY = first_block_Y;
             temp_sY = second_block_Y;
+
             //check for down direction
             while(true)
             {
-                temp_fY = (temp_fY + 1)%b_size;
-                temp_sY = (temp_sY + 1)%b_size;
+                temp_fY = (temp_fY + 1) % b_size;
+                temp_sY = (temp_sY + 1) % b_size;
                 if (!visited[temp_fX][temp_fY] && !visited[temp_sX][temp_sY])
                 {
                     dr_count++;
@@ -136,7 +143,7 @@ std::string get_longest_path()
             if (ul_count >= dr_count)
             {
                 std::string temp = std::string(ul_count, 'U') + shortest_path[i] + std::string(ul_count, 'D');
-                l_path_direction.push_back(temp);
+                l_path_directions.push_back(temp);
 
                 temp_fX = first_block_X;
                 temp_fY = first_block_Y;
@@ -155,7 +162,7 @@ std::string get_longest_path()
             else 
             {
                 std::string temp = std::string(ul_count, 'D') + shortest_path[i] + std::string(ul_count, 'U');
-                l_path_direction.push_back(temp);
+                l_path_directions.push_back(temp);
                 
                 temp_fX = first_block_X;
                 temp_fY = first_block_Y;
@@ -196,11 +203,12 @@ std::string get_longest_path()
 
             temp_fX = first_block_X;
             temp_sX = second_block_X;
+
             //check for right direction
             while(true)
             {
-                temp_fX = (temp_fX + 1)%b_size;
-                temp_sX = (temp_sX + 1)%b_size;
+                temp_fX = (temp_fX + 1) % b_size;
+                temp_sX = (temp_sX + 1) % b_size;
                 if (!visited[temp_fX][temp_fY] && !visited[temp_sX][temp_sY])
                 {
                     dr_count++;
@@ -216,7 +224,7 @@ std::string get_longest_path()
             if (ul_count >= dr_count)
             {
                 std::string temp = std::string(ul_count, 'L') + shortest_path[i] + std::string(ul_count, 'R');
-                l_path_direction.push_back(temp);
+                l_path_directions.push_back(temp);
 
                 temp_fX = first_block_X;
                 temp_fY = first_block_Y;
@@ -234,8 +242,8 @@ std::string get_longest_path()
             }
             else
             {
-                std::string temp = std::string(ul_count, 'R') + shortest_path[i] + std::string(ul_count, 'L');
-                l_path_direction.push_back(temp);
+                std::string temp = std::string(dr_count, 'R') + shortest_path[i] + std::string(dr_count, 'L');
+                l_path_directions.push_back(temp);
 
                 temp_fX = first_block_X;
                 temp_fY = first_block_Y;
@@ -252,17 +260,21 @@ std::string get_longest_path()
                 }
             }
         }
-
-        
     }
 
     //Concatenate the new_path_directions and return 
     std::string final_l_path = "";
-    for(int i=0; i<l_path_direction.length(); i++)
+    for(int i=0; i<l_path_directions.size(); i++)
     {
-        final_l_path += l_path_direction[i];
+        final_l_path += l_path_directions[i];
     }
 
     longest_path = final_l_path;
     return longest_path;
+}
+
+//Return the length of the longest path string found.
+int Longest_Solver::path_length()
+{
+    return longest_path.length();
 }
