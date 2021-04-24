@@ -1,6 +1,6 @@
 //Constant for board size must match with that of another file
 const int BOARD_SIZE = 40;
-const int MAX_BLOCKS = 300;
+const int MAX_BLOCKS = 2000;
 
 //Enumerations for block positions
 enum Direction

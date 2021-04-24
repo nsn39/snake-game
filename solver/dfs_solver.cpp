@@ -33,9 +33,7 @@ std::string DFS_Solver::path_to_food()
     int head_X = game_snake->get_block_x_position(0);
     int head_Y = game_snake->get_block_y_position(0);
     
-    //Print the details
-    std::cout << "head x " << head_X << " head y " << head_Y << std::endl;
-    std::cout << "food x " << food_X << " food y " << food_Y << std::endl; 
+    
     //Tracking the visited squares
     int visited[b_size][b_size] = {};
 

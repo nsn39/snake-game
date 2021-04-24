@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include "ltexture.cpp"
-#include "solver/longest_path_solver.cpp"
+#include "solver/hamiltonian.cpp"
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
@@ -55,6 +55,7 @@ void new_food_location(Snake*);
 DFS_Solver* solver1 = NULL;
 BFS_Solver* solver2 = NULL;
 Longest_Solver* solver3 = NULL;
+Hamiltonian_Solver* solver4 = NULL;
 
 //The path-string and index for the snake given by the solver.
 std::string snake_path;
@@ -242,10 +243,17 @@ int main(int argc, char* args[])
                     snake_path = solver3->path_to_food();
                     snake_path_length = solver3->path_length();
                 }
+                else if (game_mode == "h")
+                {   
+                    int head_x_val = python->get_block_x_position(0);
+                    int head_y_val = python->get_block_y_position(0);
+                    solver4 = new Hamiltonian_Solver(BOARD_WIDTH, head_x_val, head_y_val);
+                    snake_path = solver4->get_hamiltonian_path();
+                    snake_path_length = solver4->h_path_length();
+                }
                 
                 snake_path_index = 0;
                 
-        
                 //Setting the direction of snake's head
                 if (snake_path[0] == 'L')
                 {
@@ -330,6 +338,12 @@ int main(int argc, char* args[])
                         python->move_down();
                         snake_path_index++;
                     }
+
+                    //For hamiltonian solver, reset the index and start again.
+                    if (game_mode == "h" && snake_path_length == snake_path_index)
+                    {
+                        snake_path_index = 0;
+                    }
                 }
 
                 //Update the snake's position and block direction
@@ -370,6 +384,7 @@ int main(int argc, char* args[])
                         solver3 = new Longest_Solver(BOARD_WIDTH, food_X, food_Y, python);
                         snake_path = solver3->path_to_food();
                     }
+                    //No new path needed for hamiltonian solver.
 
                     snake_path_index = 0;
                 }
@@ -411,7 +426,7 @@ int main(int argc, char* args[])
                 SDL_RenderPresent( gRenderer );
 
                 //Delay for 300 milliseconds.
-                SDL_Delay(40);
+                SDL_Delay(2);
             }
         }
     }
