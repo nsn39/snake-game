@@ -4,7 +4,7 @@
 #include <cmath>
 #include <time.h>
 #include <stdlib.h>
-
+#include <fstream>
 #include <iostream>
 
 //Screen dimension constants
@@ -12,8 +12,8 @@ const int SCREEN_WIDTH = 700;
 const int SCREEN_HEIGHT = 700;
 
 //Snake board height and width
-const int BOARD_WIDTH = 40;
-const int BOARD_HEIGHT = 40;
+const int BOARD_WIDTH = 25;
+const int BOARD_HEIGHT = 25;
 const int GRID_SPACING = 14;
 const int TRANSLATE_BY = 62;
 
@@ -61,6 +61,9 @@ Hamiltonian_Solver* solver4 = NULL;
 std::string snake_path;
 int snake_path_index = 0;
 int snake_path_length;
+
+//Save up the scores in a separate file
+void save_score(int, std::string);
 
 bool init()
 {
@@ -188,6 +191,20 @@ void new_food_location(Snake* python)
             break;
         }
     }
+}
+
+//Save the score in the corresponding file in scores directory
+void save_score(int score, std::string game_mode)
+{   
+    std::fstream fio;
+    std::string file_name = game_mode + ".txt";
+    std::string full_path_to_file = "scores/" + file_name;
+
+    fio.open(full_path_to_file, std::ios::app);
+
+    fio << std::to_string(score) << std::endl;
+    
+    fio.close();
 }
 
 int main(int argc, char* args[]) 
@@ -354,6 +371,7 @@ int main(int argc, char* args[])
                 //If so, then quit the game
                 if (python->has_collided())
                 {
+                    save_score(SCORE, game_mode);
                     quit = true;
                 }
 
@@ -426,7 +444,7 @@ int main(int argc, char* args[])
                 SDL_RenderPresent( gRenderer );
 
                 //Delay for 300 milliseconds.
-                SDL_Delay(2);
+                SDL_Delay(35);
             }
         }
     }
