@@ -1,4 +1,4 @@
-#include "../../solver/longest_path_solver.cpp"
+#include "../../src/solver/longest_path_solver.cpp"
 
 //Solving snake game by creating a hamiltonian cycle for the snake's head
 //Abstraction for Hamiltonian_Solver

@@ -1,4 +1,4 @@
-#include "../includes/solvers/hamiltonian.h"
+#include "../../includes/solvers/hamiltonian.h"
 
 //Implementation for hamiltonian_solver
 Hamiltonian_Solver::Hamiltonian_Solver(int board_size, int x_val, int y_val)

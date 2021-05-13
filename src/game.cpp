@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include "ltexture.cpp"
+#include "helpers/ltexture.cpp"
 #include "solver/hamiltonian.cpp"
 #include <cmath>
 #include <time.h>
@@ -127,7 +127,7 @@ bool loadMedia()
 	bool success = true;
     
 	//Open the font
-	gFont = TTF_OpenFont( "static/Antonio-Medium.ttf", 18 );
+	gFont = TTF_OpenFont( "../static/Antonio-Medium.ttf", 18 );
 	if( gFont == NULL )
 	{
 		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );

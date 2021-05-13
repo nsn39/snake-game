@@ -1,4 +1,4 @@
-#include "../../snake.cpp"
+#include "../../src/snake.cpp"
 #include <queue>
 #include <string>
 #include <utility>

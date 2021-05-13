@@ -1,4 +1,4 @@
-#include "includes/snake.h"
+#include "../includes/snake.h"
 
 //Block methods implementation
 int Block::get_X()

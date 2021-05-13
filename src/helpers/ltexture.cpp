@@ -1,4 +1,4 @@
-#include "includes/helpers/ltexture.h"
+#include "../../includes/helpers/ltexture.h"
 
 LTexture::LTexture(SDL_Renderer* globalRenderer, TTF_Font* globalFont)
 {

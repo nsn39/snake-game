@@ -1,4 +1,4 @@
-#include "../../solver/bfs_solver.cpp"
+#include "../../src/solver/bfs_solver.cpp"
 #include <stack>
 #include <string>
 #include <utility>

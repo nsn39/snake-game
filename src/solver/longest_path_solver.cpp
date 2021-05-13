@@ -1,4 +1,4 @@
-#include "../includes/solvers/longest_path_solver.h"
+#include "../../includes/solvers/longest_path_solver.h"
 
 //Construction and methods implementation
 Longest_Solver::Longest_Solver(int board_size, int x_val, int y_val, Snake* s_object)
